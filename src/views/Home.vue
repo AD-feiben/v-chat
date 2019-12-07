@@ -58,7 +58,6 @@ export default class Home extends Vue {
   }
 
   mounted () {
-    console.log(Notification.permission);
     if (Notification.permission === 'granted') {
       this.$store.commit('updateNotificationPermission', 'granted');
     } else if (Notification.permission === 'default') {
