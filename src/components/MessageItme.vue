@@ -4,7 +4,7 @@
     <div v-if="message.type === 'o' && message.user" class="msg o-msg">
       <div class="avatar">{{ nickNameFirstLetter }}</div>
       <div class="message">
-        <p class="nickname">{{ message.user.nickName }}</p>
+        <p class="nick-name">{{ message.user.nickName }}</p>
         <div class="msg-content">{{ message.text }}</div>
       </div>
     </div>
@@ -69,7 +69,7 @@ export default class MessageItem extends Vue {
       color: #fff;
       background-color: gold;
     }
-    .nickname{
+    .nick-name{
       margin-bottom: 4px;
       font-size: 14px;
       text-transform: capitalize;
@@ -81,6 +81,7 @@ export default class MessageItem extends Vue {
       padding: 5px 10px;
       background-color: #f4f4f4;
       border-radius: 4px;
+      line-height: 1.25em;
       &::before{
         content: '';
         display: block;
