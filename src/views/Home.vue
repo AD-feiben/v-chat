@@ -77,7 +77,6 @@ export default class Home extends Vue {
   scrollBottom() {
     this.$nextTick(() => {
       const maxScrollTop = (this.$refs.msgScrollBox as any).scrollHeight - (this.$refs.msgScrollBox as any).offsetHeight;
-      console.log(maxScrollTop - (this.$refs.msgScrollBox as any).scrollTop);
       if (maxScrollTop - (this.$refs.msgScrollBox as any).scrollTop < 150) {
         (this.$refs.msgScrollBox as any).scrollTop = maxScrollTop;
       }
