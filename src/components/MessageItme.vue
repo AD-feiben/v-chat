@@ -55,6 +55,7 @@ export default class MessageItem extends Vue {
   }
 
   getAvatarStyle = (username: string) => {
+    if (!username) return;
     // Compute hash code
     var hash = 7;
     for (var i = 0; i < username.length; i++) {
