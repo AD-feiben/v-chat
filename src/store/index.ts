@@ -11,6 +11,7 @@ interface IRootState {
   };
   messageList: IMessage[];
   userNum: number;
+  notificationPermission: 'granted' | 'denied' | 'default';
 }
 
 Vue.use(Vuex)
@@ -21,7 +22,8 @@ const store = new Vuex.Store<IRootState>({
       nickName: ''
     },
     messageList: [],
-    userNum: 0
+    userNum: 0,
+    notificationPermission: 'default'
   },
   getters: {
     isLogin (state) {
@@ -41,10 +43,13 @@ const store = new Vuex.Store<IRootState>({
     },
     updateUserNum(state, num: number) {
       state.userNum = num;
+    },
+    updateNotificationPermission(state, notificationPermission) {
+      state.notificationPermission = notificationPermission;
     }
   },
   actions: {
-    login({ commit }, userName) {
+    login({ commit, state }, userName) {
       commit('updateUser', { nickName: userName });
       socket.login(userName);
       socket.on('login', (data: any): void => {
@@ -54,6 +59,36 @@ const store = new Vuex.Store<IRootState>({
           text: 'Welcome to VChat'
         })
       })
+      socket.on('user joined', (data: any): void => {
+        commit('updateUserNum', data.numUsers);
+        commit('addMessage', {
+          type: 's',
+          text: `${data.username} 加入群聊`
+        });
+      })
+      socket.on('user left', (data: any): void => {
+        commit('updateUserNum', data.numUsers);
+        commit('addMessage', {
+          type: 's',
+          text: `${data.username} 退出群聊`
+        });
+      })
+      socket.on('new message', (data: any): void => {
+        if (state.notificationPermission === 'granted') {
+          new Notification('VChat 收到消息', {
+            body: data.message,
+            tag: 'vchat',
+            renotify: true
+          })
+        }
+        commit('addMessage', {
+          type: 'o',
+          text: data.message,
+          user: {
+            nickName: data.username
+          }
+        });
+      });
     },
     logout({ commit }) {
       commit('updateUser', { nickName: '' });

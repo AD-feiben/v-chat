@@ -58,29 +58,14 @@ export default class Home extends Vue {
   }
 
   mounted () {
-    socket.on('user joined', (data: any): void => {
-      this.$store.commit('updateUserNum', data.numUsers);
-      this.$store.commit('addMessage', {
-        type: 's',
-        text: `${data.username} 加入群聊`
+    console.log(Notification.permission);
+    if (Notification.permission === 'granted') {
+      this.$store.commit('updateNotificationPermission', 'granted');
+    } else if (Notification.permission === 'default') {
+      Notification.requestPermission().then(permission => {
+        this.$store.commit('updateNotificationPermission', permission);
       });
-    })
-    socket.on('user left', (data: any): void => {
-      this.$store.commit('updateUserNum', data.numUsers);
-      this.$store.commit('addMessage', {
-        type: 's',
-        text: `${data.username} 退出群聊`
-      });
-    })
-    socket.on('new message', (data: any): void => {
-      this.$store.commit('addMessage', {
-        type: 'o',
-        text: data.message,
-        user: {
-          nickName: data.username
-        }
-      });
-    });
+    }
   }
 }
 
