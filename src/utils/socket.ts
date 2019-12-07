@@ -12,7 +12,7 @@ export interface IMessage {
 
 export let isConnected: boolean = false;
 
-const url = 'ws://127.0.0.1'
+const url = 'ws://117.48.206.189'
 const options = {
   path: '/socket.io',
   transports: ['websocket'],
@@ -75,6 +75,7 @@ class ChatSocket {
   public exit() {
     ChatSocket.isLogin = false;
     ChatSocket.getInstance().disconnect();
+    ChatSocket.getInstance().removeAllListeners();
     ChatSocket.timer && window.clearTimeout(ChatSocket.timer);
   }
 }

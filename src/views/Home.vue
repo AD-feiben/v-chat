@@ -28,11 +28,17 @@ import socket, { IMessage } from '@/utils/socket';
   }
 })
 export default class Home extends Vue {
-  messageList: IMessage[] = [];
-  num: number = 0;
-
   'refs': {
     'msgContent': HTMLDivElement;
+  }
+
+
+  get messageList () {
+    return this.$store.state.messageList || [];
+  }
+
+  get num () {
+    return this.$store.state.userNum;
   }
 
   @Watch('messageList', { immediate: true, deep: true })
@@ -53,21 +59,21 @@ export default class Home extends Vue {
 
   mounted () {
     socket.on('user joined', (data: any): void => {
-      this.num = data.numUsers;
-      this.messageList.push({
+      this.$store.commit('updateUserNum', data.numUsers);
+      this.$store.commit('addMessage', {
         type: 's',
         text: `${data.username} 加入群聊`
       });
     })
     socket.on('user left', (data: any): void => {
-      this.num = data.numUsers;
-      this.messageList.push({
+      this.$store.commit('updateUserNum', data.numUsers);
+      this.$store.commit('addMessage', {
         type: 's',
         text: `${data.username} 退出群聊`
       });
     })
     socket.on('new message', (data: any): void => {
-      this.messageList.push({
+      this.$store.commit('addMessage', {
         type: 'o',
         text: data.message,
         user: {
@@ -75,14 +81,6 @@ export default class Home extends Vue {
         }
       });
     });
-
-    socket.on('login', (data: any): void => {
-      this.num = data.numUsers;
-      this.messageList.push({
-        type: 's',
-        text: 'Welcome to VChat'
-      });
-    })
   }
 }
 

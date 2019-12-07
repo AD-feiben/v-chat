@@ -15,6 +15,7 @@
     </div>
     <div v-if="message.type === 'm' && message.user" class="msg m-msg">
       <div class="message">
+        <p class="nick-name">{{ message.user.nickName }}</p>
         <div class="msg-content">
           <a v-if="isLink(message.text)" :href="message.text" target="_blank">{{ message.text }}</a>
           <template v-else>
