@@ -12,8 +12,7 @@ export interface IMessage {
 
 export let isConnected: boolean = false;
 
-const protocol = location.protocol === 'https:' ? 'wss:' : 'ws';
-const url = `${protocol}//117.48.206.189`;
+const url = `//117.48.206.189`;
 const options = {
   path: '/socket.io',
   transports: ['websocket'],
