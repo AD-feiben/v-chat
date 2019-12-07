@@ -19,6 +19,9 @@ import AppBar from '@/components/AppBar.vue';
 import InputBar from '@/components/InputBar.vue';
 import MessageItem from '@/components/MessageItme.vue';
 import socket, { IMessage } from '@/utils/socket';
+import { onVisibilityChange } from '@/utils/event';
+
+let offPageVisibleChange: Function | null = null;
 
 @Component({
   components: {
@@ -65,6 +68,17 @@ export default class Home extends Vue {
         this.$store.commit('updateNotificationPermission', permission);
       });
     }
+
+
+    offPageVisibleChange && offPageVisibleChange();
+    offPageVisibleChange = onVisibilityChange((isHide: boolean): void => {
+      if (isHide === true) return;
+      socket.reconnect();
+    });
+  }
+
+  beforeDestroy() {
+    offPageVisibleChange && offPageVisibleChange();
   }
 }
 

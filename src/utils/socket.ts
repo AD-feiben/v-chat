@@ -67,7 +67,10 @@ class ChatSocket {
     }, 30000);
   }
 
-  private reconnect() {
+  public reconnect() {
+    if (ChatSocket.isLogin && ChatSocket.getInstance().disconnected) {
+      ChatSocket.getInstance().connect();
+    }
     ChatSocket.getInstance().on('disconnect', () => {
       ChatSocket.isLogin && ChatSocket.getInstance().connect();
     })
