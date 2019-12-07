@@ -13,6 +13,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import { IMessage } from '@/utils/socket';
+import { isMobile } from '@/utils/is';
 
 @Component
 export default class InputBar extends Vue {
@@ -29,11 +30,15 @@ export default class InputBar extends Vue {
     return this.$store.state.user;
   }
 
+  public blur() {
+    (this.$refs.input as any).blur();
+  }
+
   sendMsg() {
     if (this.msg.text) {
       this.$emit('sendMsg', Object.assign({}, { ...this.msg, ...{ user: this.user }}));
       this.msg.text = '';
-      (this.$refs.input as any).blur();
+      isMobile() && this.blur();
     }
   }
 }

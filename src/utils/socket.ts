@@ -1,4 +1,5 @@
 import io from 'socket.io-client';
+import store from '@/store';
 
 export interface IUser {
   nickName: string;
@@ -10,8 +11,6 @@ export interface IMessage {
   user?: IUser;
 }
 
-export let isConnected: boolean = false;
-
 const url = `//117.48.206.189`;
 const options = {
   path: '/socket.io',
@@ -20,67 +19,43 @@ const options = {
   reconnectionDelayMax: 5000
 };
 
-class ChatSocket {
-  public static isLogin: boolean = false;
-  public static instance: SocketIOClient.Socket | null = null;
-  public static timer: number = 0;
+export const socket = io(url, options);
 
-  constructor () {
-    ChatSocket.getInstance();
-  }
+let isLogin: boolean = false;
 
-  public static getInstance(): SocketIOClient.Socket {
-    if (ChatSocket.instance === null) {
-      ChatSocket.instance = io(url, options);
-    }
-    return ChatSocket.instance;
-  }
-
-  public login (userName: string) {
-    if (ChatSocket.getInstance().connected === false) {
-      ChatSocket.getInstance().connect();
-    }
-    if (ChatSocket.isLogin === true) { return; }
-    ChatSocket.getInstance().emit('add user', userName);
-    ChatSocket.isLogin = true;
-    this.reconnect();
-    this.heartbeat();
-  }
-
-  public sendMsg(msg: IMessage) {
-    if (ChatSocket.getInstance().connected === false) {
-      ChatSocket.getInstance().connect();
-    }
-    ChatSocket.getInstance().emit('new message', msg.text);
-  }
-
-  public on(eventName: string, cb: Function) {
-    ChatSocket.getInstance().on(eventName, cb);
-  }
-
-  private heartbeat() {
-    ChatSocket.timer && window.clearTimeout(ChatSocket.timer);
-    ChatSocket.timer = setTimeout(() => {
-      ChatSocket.getInstance().emit('heartbeat');
-      this.heartbeat();
-    }, 30000);
-  }
-
-  public reconnect() {
-    if (ChatSocket.isLogin && ChatSocket.getInstance().disconnected) {
-      ChatSocket.getInstance().connect();
-    }
-    ChatSocket.getInstance().on('disconnect', () => {
-      ChatSocket.isLogin && ChatSocket.getInstance().connect();
-    })
-  }
-
-  public exit() {
-    ChatSocket.isLogin = false;
-    ChatSocket.getInstance().disconnect();
-    ChatSocket.getInstance().removeAllListeners();
-    ChatSocket.timer && window.clearTimeout(ChatSocket.timer);
-  }
+export const login = (userName: string) => {
+  if (isLogin) { return; }
+  if (socket.disconnect) { socket.connect() }
+  socket.emit('add user', userName);
+  isLogin = true;
+  heartbeat();
 }
 
-export default new ChatSocket();
+let heartbeatTimer: number = 0;
+
+export const logout = () => {
+  isLogin = false;
+  socket.removeAllListeners();
+  socket.disconnect();
+  heartbeatTimer && window.clearTimeout(heartbeatTimer);
+  socket.open();
+}
+
+export const sendMsg = (msg: IMessage) => {
+  socket.emit('new message', msg.text);
+}
+
+const heartbeat = () => {
+  heartbeatTimer && window.clearTimeout(heartbeatTimer);
+  heartbeatTimer = setTimeout(() => {
+    socket.emit('heartbeat');
+    heartbeat();
+  }, 30000);
+}
+
+socket.on('disconnect', () => {
+  logout();
+  store && store.dispatch('reLogin');
+});
+
+export default socket;

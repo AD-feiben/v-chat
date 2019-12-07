@@ -1,15 +1,18 @@
 <template>
-  <div class="home">
+  <div class="home" @click="homeClickHandle">
     <app-bar>投喂小团队（{{ num }}）</app-bar>
     <div class="message-list">
-      <div ref="msgContent" class="message-content" @touchmove.stop="">
-        <message-item
-          v-for="(message, index) in messageList"
-          :key="index"
-          :message="message"/>
+      <div class="err-msg" v-if="err" @click="err.clickHandler">{{ err.msg }}</div>
+      <div ref="msgScrollBox" class="message-content" @touchmove.stop="">
+        <div ref="msgContent">
+          <message-item
+            v-for="(message, index) in messageList"
+            :key="index"
+            :message="message"/>
+        </div>
       </div>
     </div>
-    <input-bar @sendMsg="sendMessageHandle"/>
+    <input-bar ref="inputBar" @sendMsg="sendMessageHandle" @click.native.stop=""/>
   </div>
 </template>
 
@@ -18,7 +21,7 @@ import { Component, Vue, Watch } from 'vue-property-decorator';
 import AppBar from '@/components/AppBar.vue';
 import InputBar from '@/components/InputBar.vue';
 import MessageItem from '@/components/MessageItme.vue';
-import socket, { IMessage } from '@/utils/socket';
+import socket, { IMessage, sendMsg } from '@/utils/socket';
 import { onVisibilityChange } from '@/utils/event';
 
 let offPageVisibleChange: Function | null = null;
@@ -32,9 +35,10 @@ let offPageVisibleChange: Function | null = null;
 })
 export default class Home extends Vue {
   'refs': {
+    'msgScrollBox': HTMLDivElement;
     'msgContent': HTMLDivElement;
+    'inputBar': InputBar
   }
-
 
   get messageList () {
     return this.$store.state.messageList || [];
@@ -44,19 +48,39 @@ export default class Home extends Vue {
     return this.$store.state.userNum;
   }
 
+  get err() {
+    if (socket.disconnected) {
+      return {
+        msg: '你已经断开连接，点击刷新页面尝试重新连接',
+        clickHandler: () => {
+          location.reload();
+        }
+      }
+    }
+    return null;
+  }
+
   @Watch('messageList', { immediate: true, deep: true })
   messageListWatcher() {
     this.scrollBottom();
   }
 
+  homeClickHandle() {
+    (this.$refs.inputBar as any).blur();
+  }
+
   sendMessageHandle(msg: IMessage) {
     this.messageList.push(msg);
-    socket.sendMsg(msg);
+    sendMsg(msg);
   }
 
   scrollBottom() {
     this.$nextTick(() => {
-      (this.$refs.msgContent as any).scrollTop = (this.$refs.msgContent as any).scrollHeight;
+      const maxScrollTop = (this.$refs.msgScrollBox as any).scrollHeight - (this.$refs.msgScrollBox as any).offsetHeight;
+      console.log(maxScrollTop - (this.$refs.msgScrollBox as any).scrollTop);
+      if (maxScrollTop - (this.$refs.msgScrollBox as any).scrollTop < 150) {
+        (this.$refs.msgScrollBox as any).scrollTop = maxScrollTop;
+      }
     });
   }
 
@@ -73,7 +97,7 @@ export default class Home extends Vue {
     offPageVisibleChange && offPageVisibleChange();
     offPageVisibleChange = onVisibilityChange((isHide: boolean): void => {
       if (isHide === true) return;
-      socket.reconnect();
+      this.$store.dispatch('reLogin');
     });
   }
 
@@ -89,6 +113,14 @@ export default class Home extends Vue {
   display: flex;
   flex-direction: column;
   height: 100%;
+
+  .err-msg{
+    padding: 5px;
+    text-align: center;
+    font-size: 14px;
+    color: #fff;
+    background-color: #ff0000;
+  }
   .message-list{
     flex: 1;
     overflow: hidden;

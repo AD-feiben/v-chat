@@ -1,7 +1,7 @@
 import Vue from 'vue'
-import Vuex, { StoreOptions } from 'vuex'
+import Vuex from 'vuex'
 import { setLocal, getLocal } from '@/utils/local';
-import socket, { IUser, IMessage } from '@/utils/socket';
+import socket, { IUser, IMessage, login, logout } from '@/utils/socket';
 
 const NICK_NAME_KEY = 'name';
 
@@ -51,7 +51,7 @@ const store = new Vuex.Store<IRootState>({
   actions: {
     login({ commit, state }, userName) {
       commit('updateUser', { nickName: userName });
-      socket.login(userName);
+      login(userName);
       socket.on('login', (data: any): void => {
         commit('updateUserNum', data.numUsers)
         commit('addMessage', {
@@ -90,19 +90,22 @@ const store = new Vuex.Store<IRootState>({
         });
       });
     },
+    reLogin({ dispatch }) {
+      const userInfo = getLocal(NICK_NAME_KEY) as IUser;
+      if (userInfo && userInfo.nickName !== '') {
+        dispatch('login', userInfo.nickName);
+      }
+    },
     logout({ commit }) {
       commit('updateUser', { nickName: '' });
       commit('updateMessageList', []);
-      socket.exit();
+      logout();
     }
   },
   modules: {
   }
 })
 
-const userInfo = getLocal(NICK_NAME_KEY) as IUser;
-if (userInfo && userInfo.nickName !== '') {
-  store.dispatch('login', userInfo.nickName);
-}
+store.dispatch('reLogin');
 
 export default store;
