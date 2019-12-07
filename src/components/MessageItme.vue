@@ -45,7 +45,7 @@ export default class MessageItem extends Vue {
 
   get nickNameFirstLetter () {
     if (this.message.user) {
-      return this.message.user.nickName[0];
+      return this.message.user.nickName && this.message.user.nickName[0];
     }
     return ''
   }
