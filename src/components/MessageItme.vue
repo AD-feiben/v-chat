@@ -138,6 +138,9 @@ export default class MessageItem extends Vue {
       margin-left: 12px;
       margin-right: 0;
     }
+    .nick-name{
+      text-align: right;
+    }
     .msg-content{
       color: #fff;
       background-color: #4DBA87;
