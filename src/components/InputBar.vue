@@ -3,6 +3,7 @@
     <input
       v-model.trim="msg.text"
       type="text"
+      ref="input"
       placeholder="Type something here..."
       @keyup.enter="sendMsg"
     >
@@ -11,13 +12,17 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { IMessage } from '@/components/MessageItme.vue';
+import { IMessage } from '@/utils/socket';
 
 @Component
 export default class InputBar extends Vue {
   msg: IMessage = {
     type: 'm',
     text: ''
+  }
+
+  'refs': {
+    input: HTMLInputElement;
   }
 
   get user () {
@@ -28,6 +33,7 @@ export default class InputBar extends Vue {
     if (this.msg.text) {
       this.$emit('sendMsg', Object.assign({}, { ...this.msg, ...{ user: this.user }}));
       this.msg.text = '';
+      (this.$refs.input as any).blur();
     }
   }
 }
@@ -49,7 +55,7 @@ export default class InputBar extends Vue {
     font-size: 16px;
     border: none;
     outline: none;
-    background-color: #f2f2f2;
+    background-color: #f4f4f4;
   }
 }
 </style>

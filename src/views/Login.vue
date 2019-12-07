@@ -1,7 +1,7 @@
 <template>
   <div class="login">
     <div class="login-from">
-      <p>Type your nickname</p>
+      <p>Type your nickname for chat</p>
       <input type="text" v-model="nickName" autofocus @keyup.enter="loginHandle">
     </div>
   </div>
@@ -49,6 +49,7 @@ export default class Login extends Vue {
       font-size: 20px;
       outline: none;
       border: 0;
+      border-radius: 0;
       border-bottom: 1px solid #fff;
       color: #fff;
       background-color: transparent;

@@ -7,7 +7,7 @@ export const setLocal = (key: string, val: any) => {
   window.localStorage.setItem(key, value);
 };
 
-export const getLocal = (key: string) => {
+export const getLocal = (key: string): string | Object => {
   let str = window.localStorage.getItem(key) || '';
   let data = ''
   try {

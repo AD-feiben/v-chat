@@ -1,1 +1,2 @@
-declare module 'vue-socket.io';
+/// <reference types="socket.io-client" />
+declare module 'socket.io-client';

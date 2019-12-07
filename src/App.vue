@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" @touchmove.prevent="">
     <router-view/>
   </div>
 </template>
@@ -17,5 +17,6 @@ export default class App extends Vue {}
     min-width: 320px;
     margin: 0 auto;
     background-color: #fff;
+    box-shadow: 0 0 10px 5px rgba($color: #000000, $alpha: .1);
   }
 </style>
