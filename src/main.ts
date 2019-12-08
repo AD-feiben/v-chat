@@ -5,6 +5,7 @@ import store from './store'
 import '@/styles/common.scss'
 import './registerServiceWorker'
 
+store.dispatch('reLogin');
 Vue.config.productionTip = false
 
 new Vue({

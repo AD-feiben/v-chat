@@ -21,20 +21,14 @@ const options = {
 
 export const socket = io(url, options);
 
-let isLogin: boolean = false;
-
 export const login = (userName: string) => {
-  if (isLogin) { return; }
-  if (socket.disconnect) { socket.connect() }
   socket.emit('add user', userName);
-  isLogin = true;
   heartbeat();
 }
 
 let heartbeatTimer: number = 0;
 
 export const logout = () => {
-  isLogin = false;
   socket.removeAllListeners();
   socket.disconnect();
   heartbeatTimer && window.clearTimeout(heartbeatTimer);
@@ -45,17 +39,76 @@ export const sendMsg = (msg: IMessage) => {
   socket.emit('new message', msg.text);
 }
 
+export const setTitle = (title: string) => {
+  socket.emit('set title', title);
+}
+
 const heartbeat = () => {
   heartbeatTimer && window.clearTimeout(heartbeatTimer);
   heartbeatTimer = setTimeout(() => {
     socket.emit('heartbeat');
     heartbeat();
-  }, 30000);
+  }, 20000);
 }
 
+socket.on('login', (data: any): void => {
+  store.commit('updateUserNum', data.numUsers);
+  store.commit('updateUserList', data.users);
+  store.dispatch('addMessage', {
+    type: 's',
+    text: `Hi ${store.getters.nickName} Welcome to VChat`
+  });
+  store.commit('updateSocketLogin', true);
+  store.dispatch('setGroupTitle', data.title);
+  store.dispatch('showUserList');
+});
+socket.on('user joined', (data: any): void => {
+  store.commit('updateUserNum', data.numUsers);
+  store.dispatch('addMessage', {
+    type: 's',
+    text: `${data.username} 加入群聊`
+  });
+  store.commit('updateUserList', data.users);
+  store.dispatch('showUserList');
+});
+socket.on('user left', (data: any): void => {
+  store.commit('updateUserNum', data.numUsers);
+  store.dispatch('addMessage', {
+    type: 's',
+    text: `${data.username} 退出群聊`
+  });
+  store.commit('updateUserList', data.users);
+  store.dispatch('showUserList');
+});
+socket.on('new message', (data: any): void => {
+  if (store.state.notificationPermission === 'granted') {
+    new Notification('VChat 收到消息', {
+      body: data.message,
+      tag: 'vchat',
+      renotify: true
+    });
+  }
+  store.dispatch('addMessage', {
+    type: 'o',
+    text: data.message,
+    user: {
+      nickName: data.username
+    }
+  });
+});
+
+socket.on('set title', (data: any) => {
+  store.dispatch('sendTitleMsg', data);
+});
+
+socket.on('user list', (data: any) => {
+  store.commit('updateUserList', data.users);
+  store.dispatch('showUserList');
+});
+
 socket.on('disconnect', () => {
-  logout();
-  store && store.dispatch('reLogin');
+  store.commit('updateSocketLogin', false);
+  store.dispatch('reLogin');
 });
 
 export default socket;

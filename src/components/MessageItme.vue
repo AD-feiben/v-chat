@@ -1,27 +1,23 @@
 <template>
   <div class="message-item">
     <div v-if="message.type === 's'" class="sys-msg">{{ message.text }}</div>
-    <div v-if="message.type === 'o' && message.user" class="msg o-msg">
-      <div class="avatar" :style="getAvatarStyle(message.user.nickName)">{{ nickNameFirstLetter }}</div>
+    <div v-if="message.type === 'o'" class="msg o-msg">
+      <div
+        class="avatar"
+        :style="getAvatarStyle(message.user.nickName)"
+        @click.stop="at(message.user.nickName)"
+      >
+        {{ nickNameFirstLetter }}
+      </div>
       <div class="message">
-        <p class="nick-name">{{ message.user.nickName }}</p>
-        <div class="msg-content">
-          <a v-if="isLink(message.text)" :href="message.text" target="_blank">{{ message.text }}</a>
-          <template v-else>
-            {{ message.text }}
-          </template>
-        </div>
+        <p class="nick-name" @click.stop="at(message.user.nickName)">{{ message.user.nickName }}</p>
+        <div class="msg-content" v-html="formatMsg(message.text)"/>
       </div>
     </div>
-    <div v-if="message.type === 'm' && message.user" class="msg m-msg">
+    <div v-if="message.type === 'm'" class="msg m-msg">
       <div class="message">
         <p class="nick-name">{{ message.user.nickName }}</p>
-        <div class="msg-content">
-          <a v-if="isLink(message.text)" :href="message.text" target="_blank">{{ message.text }}</a>
-          <template v-else>
-            {{ message.text }}
-          </template>
-        </div>
+        <div class="msg-content" v-html="formatMsg(message.text)"/>
       </div>
       <div class="avatar" :style="getAvatarStyle(message.user.nickName)">{{ nickNameFirstLetter }}</div>
     </div>
@@ -31,7 +27,7 @@
 <script lang='ts'>
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { IMessage } from '@/utils/socket';
-import { isLink } from '@/utils/is';
+import { isLink, regLink } from '@/utils/is';
 
 const COLORS = [
   '#e21400', '#91580f', '#f8a700', '#f78b00',
@@ -44,18 +40,40 @@ export default class MessageItem extends Vue {
   @Prop({ type: Object, required: true }) message!: IMessage;
 
   get nickNameFirstLetter () {
-    if (this.message.user) {
-      return this.message.user.nickName && this.message.user.nickName[0];
+    return this.msgNickName ? this.msgNickName[0] : '';
+  }
+  get msgNickName () {
+    return this.message.user && this.message.user.nickName;
+  }
+  get nickName() {
+    return this.$store.getters.nickName;
+  }
+
+  get regAtMe () {
+    return /(@\S+)/g;
+  }
+
+  at(userName: string) {
+    this.$emit('at', `@${userName} `);
+  }
+
+  formatMsg(text: string) {
+    const names = text.match(this.regAtMe);
+    const atNameList: string[] = [`@${this.nickName}`, '@All', '@all', '@所有人'];
+    if (atNameList.includes(RegExp.$1)) {
+      text = text.replace(this.regAtMe, `<b class="at">${RegExp.$1}</b>`);
     }
-    return ''
+
+    text = text.replace(regLink, '<a target="_blank" href="$1$2">$1$2</a>');
+    return text;
   }
 
   isLink(str: string) {
     return isLink(str);
   }
 
-  getAvatarStyle = (username: string) => {
-    if (!username) return;
+  getColor (username: string) {
+    if (!username) return '#FFFF00';
     // Compute hash code
     var hash = 7;
     for (var i = 0; i < username.length; i++) {
@@ -63,7 +81,12 @@ export default class MessageItem extends Vue {
     }
     // Calculate color
     var index = Math.abs(hash % COLORS.length);
-    return { backgroundColor: COLORS[index]} ;
+    return COLORS[index]
+  }
+
+  getAvatarStyle (username: string) {
+    if (!username) return;
+    return { backgroundColor: this.getColor(username)} ;
   }
 }
 
@@ -95,11 +118,12 @@ export default class MessageItem extends Vue {
       text-transform: capitalize;
       color: #fff;
       background-color: gold;
+      cursor: pointer;
+      user-select: none;
     }
     .nick-name{
       margin-bottom: 4px;
       font-size: 14px;
-      text-transform: capitalize;
       font-style: italic;
       color: #333;
     }
@@ -109,6 +133,10 @@ export default class MessageItem extends Vue {
       background-color: #f4f4f4;
       border-radius: 4px;
       line-height: 1.25em;
+      .at{
+        font-size: 16px;
+        color: #e00;
+      }
       &::before{
         content: '';
         display: block;

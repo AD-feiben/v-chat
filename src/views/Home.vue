@@ -1,6 +1,6 @@
 <template>
   <div class="home" @click="homeClickHandle">
-    <app-bar>投喂小团队（{{ num }}）</app-bar>
+    <app-bar>{{ groupTitle }}（{{ num }}）</app-bar>
     <div class="message-list">
       <div class="err-msg" v-if="err" @click="err.clickHandler">{{ err.msg }}</div>
       <div ref="msgScrollBox" class="message-content" @touchmove.stop="">
@@ -8,11 +8,17 @@
           <message-item
             v-for="(message, index) in messageList"
             :key="index"
-            :message="message"/>
+            :message="message"
+            @at="atHandle"/>
         </div>
       </div>
     </div>
-    <input-bar ref="inputBar" @sendMsg="sendMessageHandle" @click.native.stop=""/>
+    <input-bar
+      v-if="socketLogin"
+      ref="inputBar"
+      @getUsers="getUsersHandle"
+      @sendMsg="sendMessageHandle"
+      @click.native.stop=""/>
   </div>
 </template>
 
@@ -40,6 +46,10 @@ export default class Home extends Vue {
     'inputBar': InputBar
   }
 
+  get groupTitle () {
+    return this.$store.getters.groupTitle || '投喂小团队';
+  }
+
   get messageList () {
     return this.$store.state.messageList || [];
   }
@@ -48,13 +58,15 @@ export default class Home extends Vue {
     return this.$store.state.userNum;
   }
 
+  get socketLogin () {
+    return this.$store.getters.socketLogin;
+  }
+
   get err() {
-    if (socket.disconnected) {
+    if (!this.socketLogin) {
       return {
-        msg: '你已经断开连接，点击刷新页面尝试重新连接',
-        clickHandler: () => {
-          location.reload();
-        }
+        msg: '你已经断开连接，正在重新连接...',
+        clickHandler: () => {}
       }
     }
     return null;
@@ -65,19 +77,33 @@ export default class Home extends Vue {
     this.scrollBottom();
   }
 
+  atHandle(userName: string) {
+    (this.$refs.inputBar as any).addText(userName);
+    (this.$refs.inputBar as any).focus();
+  }
+
   homeClickHandle() {
     (this.$refs.inputBar as any).blur();
   }
 
-  sendMessageHandle(msg: IMessage) {
-    this.messageList.push(msg);
-    sendMsg(msg);
+  getUsersHandle() {
+    socket.emit('get users')
   }
 
-  scrollBottom() {
+  sendMessageHandle(msg: IMessage) {
+    this.$store.dispatch('addMessage', msg);
+    sendMsg(msg);
+    this.scrollBottom(true);
+  }
+
+  scrollBottom(ignoreCondition?: boolean) {
     this.$nextTick(() => {
       const maxScrollTop = (this.$refs.msgScrollBox as any).scrollHeight - (this.$refs.msgScrollBox as any).offsetHeight;
-      if (maxScrollTop - (this.$refs.msgScrollBox as any).scrollTop < 150) {
+      if (ignoreCondition === true) {
+        return (this.$refs.msgScrollBox as any).scrollTop = maxScrollTop;
+      }
+      const scrollTop = (this.$refs.msgScrollBox as any).scrollTop;
+      if (maxScrollTop - scrollTop < 200 || scrollTop === 0) {
         (this.$refs.msgScrollBox as any).scrollTop = maxScrollTop;
       }
     });
@@ -91,20 +117,8 @@ export default class Home extends Vue {
         this.$store.commit('updateNotificationPermission', permission);
       });
     }
-
-
-    offPageVisibleChange && offPageVisibleChange();
-    offPageVisibleChange = onVisibilityChange((isHide: boolean): void => {
-      if (isHide === true) return;
-      this.$store.dispatch('reLogin');
-    });
-  }
-
-  beforeDestroy() {
-    offPageVisibleChange && offPageVisibleChange();
   }
 }
-
 </script>
 
 <style lang="scss">

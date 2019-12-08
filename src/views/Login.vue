@@ -53,7 +53,6 @@ export default class Login extends Vue {
       border-bottom: 1px solid #fff;
       color: #fff;
       background-color: transparent;
-      text-transform: capitalize;
     }
   }
 }

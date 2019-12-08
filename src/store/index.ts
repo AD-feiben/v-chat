@@ -1,17 +1,21 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { setLocal, getLocal } from '@/utils/local';
-import socket, { IUser, IMessage, login, logout } from '@/utils/socket';
+import { IUser, IMessage, login, logout } from '@/utils/socket';
 
 const NICK_NAME_KEY = 'name';
+const MESSAGE_KEY = 'msg';
 
 interface IRootState {
   user: {
     nickName: string;
   };
+  userList: string[];
   messageList: IMessage[];
   userNum: number;
   notificationPermission: 'granted' | 'denied' | 'default';
+  socketLogin: boolean;
+  groupTitle: string;
 }
 
 Vue.use(Vuex)
@@ -21,13 +25,28 @@ const store = new Vuex.Store<IRootState>({
     user: {
       nickName: ''
     },
+    userList: [],
     messageList: [],
     userNum: 0,
-    notificationPermission: 'default'
+    notificationPermission: 'default',
+    socketLogin: false,
+    groupTitle: ''
   },
   getters: {
-    isLogin (state) {
+    nickName(state) {
+      return state.user.nickName;
+    },
+    isLogin(state) {
       return state.user.nickName !== '';
+    },
+    socketLogin(state) {
+      return state.socketLogin;
+    },
+    userList(state) {
+      return state.userList;
+    },
+    groupTitle(state) {
+      return state.groupTitle;
     }
   },
   mutations: {
@@ -36,64 +55,73 @@ const store = new Vuex.Store<IRootState>({
       state.user = Object.assign(state.user, user);
     },
     updateMessageList(state, messageList) {
+      let localMsgList = messageList.filter((item: IMessage) => {
+        return item.type !== 's';
+      });
+      if (localMsgList.length > 100) {
+        localMsgList.splice(0, localMsgList.length - 100);
+      }
+      setLocal(MESSAGE_KEY, localMsgList);
       state.messageList = messageList;
-    },
-    addMessage(state, message: IMessage) {
-      state.messageList = state.messageList.concat([ message ]);
     },
     updateUserNum(state, num: number) {
       state.userNum = num;
     },
     updateNotificationPermission(state, notificationPermission) {
       state.notificationPermission = notificationPermission;
+    },
+    updateSocketLogin(state, socketLogin) {
+      state.socketLogin = socketLogin;
+    },
+    updateUserList(state, userList) {
+      state.userList = [].concat(userList);
+    },
+    updateGroupTitle(state, groupTitle) {
+      state.groupTitle = groupTitle;
     }
   },
   actions: {
-    login({ commit, state }, userName) {
+    setGroupTitle({ commit }, title) {
+      commit('updateGroupTitle', title);
+    },
+    sendTitleMsg({ dispatch }, data) {
+      const { username, title } = data;
+      dispatch('setGroupTitle', title);
+      dispatch('addMessage', {
+        type: 'o',
+        text: `${username} 修改群名称为： ${title}`,
+        user: {
+          nickName: '群聊小助手'
+        }
+      });
+    },
+    showUserList({ state, dispatch }) {
+      dispatch('addMessage', {
+        type: 'o',
+        text: `当前人数为 ${
+          state.userList.length
+        } 人, 分别是 ${state.userList.join('，')}`,
+        user: {
+          nickName: '群聊小助手'
+        }
+      });
+    },
+    setMessage({ commit }) {
+      commit('updateMessageList', getLocal(MESSAGE_KEY) || []);
+    },
+    addMessage({ state, commit }, message: IMessage) {
+      commit('updateMessageList', state.messageList.concat([message]));
+    },
+    login({ commit }, userName) {
       commit('updateUser', { nickName: userName });
       login(userName);
-      socket.on('login', (data: any): void => {
-        commit('updateUserNum', data.numUsers)
-        commit('addMessage', {
-          type: 's',
-          text: 'Welcome to VChat'
-        })
-      })
-      socket.on('user joined', (data: any): void => {
-        commit('updateUserNum', data.numUsers);
-        commit('addMessage', {
-          type: 's',
-          text: `${data.username} 加入群聊`
-        });
-      })
-      socket.on('user left', (data: any): void => {
-        commit('updateUserNum', data.numUsers);
-        commit('addMessage', {
-          type: 's',
-          text: `${data.username} 退出群聊`
-        });
-      })
-      socket.on('new message', (data: any): void => {
-        if (state.notificationPermission === 'granted') {
-          new Notification('VChat 收到消息', {
-            body: data.message,
-            tag: 'vchat',
-            renotify: true
-          })
-        }
-        commit('addMessage', {
-          type: 'o',
-          text: data.message,
-          user: {
-            nickName: data.username
-          }
-        });
-      });
     },
     reLogin({ dispatch }) {
       const userInfo = getLocal(NICK_NAME_KEY) as IUser;
       if (userInfo && userInfo.nickName !== '') {
         dispatch('login', userInfo.nickName);
+      } else {
+        dispatch('logout');
       }
     },
     logout({ commit }) {
@@ -102,10 +130,9 @@ const store = new Vuex.Store<IRootState>({
       logout();
     }
   },
-  modules: {
-  }
-})
+  modules: {}
+});
 
-store.dispatch('reLogin');
+store.dispatch('setMessage');
 
 export default store;
