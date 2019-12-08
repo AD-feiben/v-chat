@@ -65,7 +65,7 @@ export default class InputBar extends Vue {
 
   public blur() {
     this.showUserList = false;
-    (this.$refs.input as any).blur();
+    this.$refs.input && (this.$refs.input as any).blur();
   }
 
   public focus() {

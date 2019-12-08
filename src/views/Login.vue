@@ -16,7 +16,7 @@ export default class Login extends Vue {
 
   loginHandle() {
     if (!this.nickName) {
-      alert('Please type your nickname');
+      return alert('Please type your nickname');
     }
     this.$store.dispatch('login', this.nickName);
     this.$router.replace({ name: 'home' });

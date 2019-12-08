@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { setLocal, getLocal } from '@/utils/local';
 import { IUser, IMessage, login, logout } from '@/utils/socket';
+import router from '@/router';
 
 const NICK_NAME_KEY = 'name';
 const MESSAGE_KEY = 'msg';
@@ -121,7 +122,7 @@ const store = new Vuex.Store<IRootState>({
       if (userInfo && userInfo.nickName !== '') {
         dispatch('login', userInfo.nickName);
       } else {
-        dispatch('logout');
+        router.replace({ name: 'login' });
       }
     },
     logout({ commit }) {

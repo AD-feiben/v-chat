@@ -83,7 +83,7 @@ export default class Home extends Vue {
   }
 
   homeClickHandle() {
-    (this.$refs.inputBar as any).blur();
+    this.$refs.inputBar && (this.$refs.inputBar as any).blur();
   }
 
   getUsersHandle() {

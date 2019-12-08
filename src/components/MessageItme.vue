@@ -5,12 +5,16 @@
       <div
         class="avatar"
         :style="getAvatarStyle(message.user.nickName)"
-        @click.stop="at(message.user.nickName)"
+        @mousedown="mousedownHandle(message.user.nickName)"
+        @touchstart="mousedownHandle(message.user.nickName)"
+        @mouseup="mouseupHandle()"
+        @touchend="mouseupHandle()"
+        @click.stop=""
       >
         {{ nickNameFirstLetter }}
       </div>
       <div class="message">
-        <p class="nick-name" @click.stop="at(message.user.nickName)">{{ message.user.nickName }}</p>
+        <p class="nick-name">{{ message.user.nickName }}</p>
         <div class="msg-content" v-html="formatMsg(message.text)"/>
       </div>
     </div>
@@ -39,6 +43,8 @@ const COLORS = [
 export default class MessageItem extends Vue {
   @Prop({ type: Object, required: true }) message!: IMessage;
 
+  timer: number = 0;
+
   get nickNameFirstLetter () {
     return this.msgNickName ? this.msgNickName[0] : '';
   }
@@ -55,6 +61,18 @@ export default class MessageItem extends Vue {
 
   at(userName: string) {
     this.$emit('at', `@${userName} `);
+  }
+
+  mousedownHandle(userName: string) {
+    this.timer && clearTimeout(this.timer);
+    this.timer = setTimeout(() => {
+      console.log('set at');
+      this.at(userName);
+    }, 500);
+  }
+
+  mouseupHandle() {
+    this.timer && clearTimeout(this.timer);
   }
 
   formatMsg(text: string) {
