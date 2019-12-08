@@ -66,7 +66,6 @@ export default class MessageItem extends Vue {
   mousedownHandle(userName: string) {
     this.timer && clearTimeout(this.timer);
     this.timer = setTimeout(() => {
-      console.log('set at');
       this.at(userName);
     }, 500);
   }
