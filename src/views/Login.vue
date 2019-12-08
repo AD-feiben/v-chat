@@ -19,7 +19,7 @@ export default class Login extends Vue {
       return alert('Please type your nickname');
     }
     this.$store.dispatch('login', this.nickName);
-    this.$router.replace({ name: 'home' });
+    this.$router.replace({ name: 'home' }).catch(() => {});
   }
 }
 </script>

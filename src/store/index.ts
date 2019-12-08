@@ -5,7 +5,7 @@ import { IUser, IMessage, login, logout } from '@/utils/socket';
 import router from '@/router';
 
 const NICK_NAME_KEY = 'name';
-const MESSAGE_KEY = 'msg';
+// const MESSAGE_KEY = 'msg';
 
 interface IRootState {
   user: {
@@ -62,7 +62,7 @@ const store = new Vuex.Store<IRootState>({
       if (localMsgList.length > 100) {
         localMsgList.splice(0, localMsgList.length - 100);
       }
-      setLocal(MESSAGE_KEY, localMsgList);
+      // setLocal(MESSAGE_KEY, localMsgList);
       state.messageList = messageList;
     },
     updateUserNum(state, num: number) {
@@ -107,9 +107,9 @@ const store = new Vuex.Store<IRootState>({
         }
       });
     },
-    setMessage({ commit }) {
-      commit('updateMessageList', getLocal(MESSAGE_KEY) || []);
-    },
+    // setMessage({ commit }) {
+    //   commit('updateMessageList', getLocal(MESSAGE_KEY) || []);
+    // },
     addMessage({ state, commit }, message: IMessage) {
       commit('updateMessageList', state.messageList.concat([message]));
     },
@@ -122,7 +122,7 @@ const store = new Vuex.Store<IRootState>({
       if (userInfo && userInfo.nickName !== '') {
         dispatch('login', userInfo.nickName);
       } else {
-        router.replace({ name: 'login' });
+        router.replace({ name: 'login' }).catch(() => {});
       }
     },
     logout({ commit }) {
@@ -134,6 +134,6 @@ const store = new Vuex.Store<IRootState>({
   modules: {}
 });
 
-store.dispatch('setMessage');
+// store.dispatch('setMessage');
 
 export default store;

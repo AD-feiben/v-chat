@@ -1,7 +1,7 @@
 <template>
   <div class="home" @click="homeClickHandle">
     <app-bar>{{ groupTitle }}（{{ num }}）</app-bar>
-    <div class="message-list">
+    <div class="message-list" :class="{ pbsafe: !socketLogin }">
       <div class="err-msg" v-if="err" @click="err.clickHandler">{{ err.msg }}</div>
       <div ref="msgScrollBox" class="message-content" @touchmove.stop="">
         <div ref="msgContent">
@@ -9,7 +9,8 @@
             v-for="(message, index) in messageList"
             :key="index"
             :message="message"
-            @at="atHandle"/>
+            @at="atHandle"
+            @needFocus="focusHandle"/>
         </div>
       </div>
     </div>
@@ -79,6 +80,9 @@ export default class Home extends Vue {
 
   atHandle(userName: string) {
     (this.$refs.inputBar as any).addText(userName);
+  }
+
+  focusHandle() {
     (this.$refs.inputBar as any).focus();
   }
 
@@ -137,6 +141,9 @@ export default class Home extends Vue {
   .message-list{
     flex: 1;
     overflow: hidden;
+    &.pbsafe{
+      padding-bottom: env(safe-area-inset-bottom);
+    }
   }
   .message-content{
     height: 100%;

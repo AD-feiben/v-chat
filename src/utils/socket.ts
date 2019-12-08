@@ -22,6 +22,9 @@ const options = {
 export const socket = io(url, options);
 
 export const login = (userName: string) => {
+  if (socket.disconnected) {
+    socket.connect();
+  }
   socket.emit('add user', userName);
   heartbeat();
 }
@@ -29,10 +32,9 @@ export const login = (userName: string) => {
 let heartbeatTimer: number = 0;
 
 export const logout = () => {
-  socket.removeAllListeners();
+  socket.emit('disconnect');
   socket.disconnect();
   heartbeatTimer && window.clearTimeout(heartbeatTimer);
-  socket.open();
 }
 
 export const sendMsg = (msg: IMessage) => {
@@ -52,6 +54,13 @@ const heartbeat = () => {
 }
 
 socket.on('login', (data: any): void => {
+  const msgList = data.messageList.map((item: any) => {
+    return {
+      type: item.user.nickName === store.getters.nickName ? 'm' : 'o',
+      ...item
+    }
+  });
+  store.commit('updateMessageList', msgList);
   store.commit('updateUserNum', data.numUsers);
   store.commit('updateUserList', data.users);
   store.dispatch('addMessage', {
@@ -107,6 +116,7 @@ socket.on('user list', (data: any) => {
 });
 
 socket.on('disconnect', () => {
+  store.commit('updateMessageList', []);
   store.commit('updateSocketLogin', false);
   store.dispatch('reLogin');
 });

@@ -60,7 +60,10 @@ export default class InputBar extends Vue {
   }
 
   public addText(text: string) {
+    let reg = new RegExp(`${text} ?`);
+    this.msg.text = this.msg.text.replace(reg, '');
     this.msg.text += text;
+    this.focus();
   }
 
   public blur() {
@@ -69,7 +72,7 @@ export default class InputBar extends Vue {
   }
 
   public focus() {
-    (this.$refs.input as any).focus();
+    this.$refs.input && (this.$refs.input as any).focus();
   }
 
   inputHanlde(e: InputEvent) {
@@ -77,9 +80,9 @@ export default class InputBar extends Vue {
   }
 
   userClickHandle(userName: string) {
-    this.addText(`${userName} `);
+    this.msg.text = this.msg.text.substring(0, -1);
+    this.addText(`@${userName} `);
     this.showUserList = false;
-    this.focus();
   }
 
   sendMsg() {

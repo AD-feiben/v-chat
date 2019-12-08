@@ -72,6 +72,7 @@ export default class MessageItem extends Vue {
 
   mouseupHandle() {
     this.timer && clearTimeout(this.timer);
+    this.$emit('needFocus');
   }
 
   formatMsg(text: string) {
