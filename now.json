@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "name": "VChat",
+  "builds": [{ "src": "server/index.js", "use": "@now/node-server" }],
+  "routes": [
+    {
+      "src": "/",
+      "dest": "server/index.js",
+      "methods": ["GET"]
+    },
+    {
+      "src": "/socket.io",
+      "dest": "server/index.js",
+      "methods": ["GET"]
+    }
+  ]
+}

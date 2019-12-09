@@ -13,7 +13,7 @@ export interface IMessage {
   time: number;
 }
 
-const url = `//117.48.206.189`;
+const url = '';
 const options = {
   path: '/socket.io',
   transports: ['websocket'],

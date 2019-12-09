@@ -1,7 +1,0 @@
-language: node
-node_js:
-  - 10.13
-
-install: npm install
-
-script: npm run deploy
