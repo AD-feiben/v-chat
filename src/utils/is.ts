@@ -3,7 +3,7 @@ import store from '@/store';
 // eslint-disable-next-line
 export const regLink = new RegExp('(http:\\/\\/|https:\\/\\/)((\\w|=|\\?|\\.|\\/|&|-)+)', 'g');
 export const regAt = /(@\S+)/g;
-export const atNameList: string[] = [`@${store.getters.nickName}`, '@All', '@all', '@所有人'];
+export const atNameList: string[] = ['@All', '@all', '@所有人'];
 
 export const isLink = (str: string): boolean => {
   // eslint-disable-next-line
@@ -17,5 +17,9 @@ export const isMobile = (): boolean => {
 
 export const isAtMe = (msg: string): boolean => {
   msg.match(regAt);
-  return atNameList.includes(RegExp.$1);
+  const nameList = atNameList;
+  if (store) {
+    nameList.push(`@${store.getters.nickName}`);
+  }
+  return nameList.includes(RegExp.$1);
 }
