@@ -79,6 +79,7 @@ const store = new Vuex.Store<IRootState>({
     },
     updateGroupTitle(state, groupTitle) {
       state.groupTitle = groupTitle;
+      document.title = `${groupTitle}-VChat`;
     }
   },
   actions: {
@@ -126,6 +127,7 @@ const store = new Vuex.Store<IRootState>({
       }
     },
     logout({ commit }) {
+      document.title = 'VChat';
       commit('updateUser', { nickName: '' });
       commit('updateMessageList', []);
       logout();
