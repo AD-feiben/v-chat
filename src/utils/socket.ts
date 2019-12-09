@@ -1,5 +1,6 @@
 import io from 'socket.io-client';
 import store from '@/store';
+import { isAtMe } from './is';
 
 export interface IUser {
   nickName: string;
@@ -99,10 +100,10 @@ socket.on('user left', (data: any): void => {
   store.dispatch('showUserList');
 });
 socket.on('new message', (data: any): void => {
-  if (store.state.notificationPermission === 'granted') {
+  if (store.state.notificationPermission === 'granted' && isAtMe(data.message)) {
     new Notification('VChat 收到消息', {
-      body: data.message,
-      tag: 'vchat',
+      body: `[有人@我]${data.message}`,
+      tag: 'VChat',
       renotify: true
     });
   }

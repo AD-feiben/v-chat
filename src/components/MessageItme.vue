@@ -33,7 +33,7 @@
 <script lang='ts'>
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { IMessage } from '@/utils/socket';
-import { isLink, regLink } from '@/utils/is';
+import { isLink, regLink, regAt } from '@/utils/is';
 import expressionList from '@/config/chat-expression';
 
 const COLORS = [
@@ -57,10 +57,6 @@ export default class MessageItem extends Vue {
   }
   get nickName() {
     return this.$store.getters.nickName;
-  }
-
-  get regAtMe () {
-    return /(@\S+)/g;
   }
 
   fmtTime (time: number) {
@@ -92,10 +88,10 @@ export default class MessageItem extends Vue {
   }
 
   formatMsg(text: string) {
-    const names = text.match(this.regAtMe);
+    text.match(regAt);
     const atNameList: string[] = [`@${this.nickName}`, '@All', '@all', '@所有人'];
     if (atNameList.includes(RegExp.$1)) {
-      text = text.replace(this.regAtMe, `<b class="at">${RegExp.$1}</b>`);
+      text = text.replace(regAt, `<b class="at">${RegExp.$1}</b>`);
     }
 
     text = text.replace(regLink, '<a target="_blank" href="$1$2">$1$2</a>');
