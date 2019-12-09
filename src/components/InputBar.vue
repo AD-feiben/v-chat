@@ -61,7 +61,7 @@ export default class InputBar extends Vue {
   }
 
   public addText(text: string) {
-    let reg = new RegExp(`${text} ?`);
+    let reg = new RegExp(`${text} ?`, 'g');
     this.msg.text = this.msg.text.replace(reg, '');
     this.msg.text += text;
     this.focus();
@@ -81,7 +81,7 @@ export default class InputBar extends Vue {
   }
 
   userClickHandle(userName: string) {
-    this.msg.text = this.msg.text.substring(0, -1);
+    this.msg.text = this.msg.text.substring(0, this.msg.text.length - 1);
     this.addText(`@${userName} `);
     this.showUserList = false;
   }
