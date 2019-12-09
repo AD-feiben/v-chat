@@ -34,6 +34,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
 import { IMessage } from '@/utils/socket';
 import { isLink, regLink } from '@/utils/is';
+import expressionList from '@/config/chat-expression';
 
 const COLORS = [
   '#e21400', '#91580f', '#f8a700', '#f78b00',
@@ -95,6 +96,20 @@ export default class MessageItem extends Vue {
     }
 
     text = text.replace(regLink, '<a target="_blank" href="$1$2">$1$2</a>');
+    text = this.convertExpression(text);
+    return text;
+  }
+
+  convertExpression(text: string) {
+    let regExp = new RegExp('\\[.+?\\]', 'g');
+    if (!regExp.test(text)) return text;
+    text = text.replace(regExp, (item): any => {
+      if (!item) return;
+      let index = Object.keys(expressionList).indexOf(item);
+      if (index !== -1) {
+        return `<img class="expression-message" src=${(expressionList as IObj<string>)[item]} alt="expression"/>`;
+      }
+    });
     return text;
   }
 
@@ -185,6 +200,14 @@ export default class MessageItem extends Vue {
       }
       a{
         color: inherit;
+      }
+      .expression-message {
+        width: 22px;
+        height: 22px;
+        display: inline-block;
+        line-height: 22px;
+        vertical-align: middle;
+        margin: 0 2px;
       }
     }
   }
