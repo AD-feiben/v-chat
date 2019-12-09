@@ -180,6 +180,7 @@ export default class InputBar extends Vue {
     font-size: 16px;
     border: none;
     outline: none;
+    border-radius: 2px;
     background-color: #fff;
     overflow: auto;
   }
