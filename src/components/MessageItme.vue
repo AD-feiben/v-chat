@@ -7,6 +7,8 @@
         :style="getAvatarStyle(message.user.nickName)"
         @mousedown="mousedownHandle(message.user.nickName)"
         @touchstart="mousedownHandle(message.user.nickName)"
+        @mousemove="mousemoveHandle()"
+        @touchmove="mousemoveHandle()"
         @mouseup="mouseupHandle()"
         @touchend="mouseupHandle()"
         @click.stop=""
@@ -74,9 +76,15 @@ export default class MessageItem extends Vue {
     }, 500);
   }
 
-  mouseupHandle() {
+  mousemoveHandle() {
     this.timer && clearTimeout(this.timer);
-    this.$emit('needFocus');
+  }
+
+  mouseupHandle() {
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.$emit('needFocus');
+    }
   }
 
   formatMsg(text: string) {
