@@ -1,5 +1,5 @@
 <template>
-  <div class="input-bar">
+  <div class="input-bar" @touchmove.stop="">
     <input
       v-model.trim="msg.text"
       type="text"
@@ -24,7 +24,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import { IMessage, setTitle } from '@/utils/socket';
+import socket, { IMessage, setTitle } from '@/utils/socket';
 import { isMobile } from '@/utils/is';
 
 interface InputEvent extends UIEvent {
@@ -38,7 +38,8 @@ export default class InputBar extends Vue {
   showUserList: boolean = false;
   msg: IMessage = {
     type: 'm',
-    text: ''
+    text: '',
+    time: 0
   }
 
   'refs': {
@@ -90,17 +91,17 @@ export default class InputBar extends Vue {
       this.$emit('sendMsg', Object.assign({}, { ...this.msg, ...{ user: this.user }}));
       if (this.msg.text.substring(0, 5) === '修改群名：') {
         let title = this.msg.text.substr(5) || '群聊';
-        this.$store.dispatch('sendTitleMsg', {
-          username: this.nickName,
-          title
-        });
         setTitle(title);
+      }
+      if (this.msg.text.substring(0, 7) === '@群聊小助手 ') {
+        let [event, msg] = this.msg.text.substr(7).split(':');
+        socket.emit(event, msg);
       }
     }
 
     if (this.msg.text === '当前人数') {
-      this.$emit('getUsers');
-      this.$store.dispatch('showUserList');
+      socket.emit('get users')
+      // this.$store.dispatch('showUserList');
     }
     isMobile() && this.blur();
     this.msg.text = '';
@@ -113,25 +114,25 @@ export default class InputBar extends Vue {
 .input-bar{
   position: relative;
   display: flex;
-  height: 50px;
-  padding-bottom: env(safe-area-inset-bottom);
-  border-top: 1px solid rgba($color: #000000, $alpha: .1);
-  box-sizing: content-box;
+  padding: 10px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  background-color: #f4f4f4;
 
   input{
     flex: 1;
-    height: 100%;
+    height: 40px;
     padding: 0 10px;
     font-size: 16px;
     border: none;
     outline: none;
-    background-color: #f4f4f4;
+    background-color: #fff;
+    overflow: auto;
   }
 
   .user-list{
     position: absolute;
-    bottom: 52px;
-    bottom: calc(52px + env(safe-area-inset-bottom));
+    bottom: 60px;
+    bottom: calc(60px + env(safe-area-inset-bottom));
     left: 20px;
     width: auto;
     min-width: 100px;

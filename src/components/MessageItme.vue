@@ -14,13 +14,13 @@
         {{ nickNameFirstLetter }}
       </div>
       <div class="message">
-        <p class="nick-name">{{ message.user.nickName }}</p>
+        <p class="nick-name">{{ message.user.nickName }}<span class="time">{{ fmtTime(message.time) }}</span></p>
         <div class="msg-content" v-html="formatMsg(message.text)"/>
       </div>
     </div>
     <div v-if="message.type === 'm'" class="msg m-msg">
       <div class="message">
-        <p class="nick-name">{{ message.user.nickName }}</p>
+        <p class="nick-name"><span class="time">{{ fmtTime(message.time) }}</span>{{ message.user.nickName }}</p>
         <div class="msg-content" v-html="formatMsg(message.text)"/>
       </div>
       <div class="avatar" :style="getAvatarStyle(message.user.nickName)">{{ nickNameFirstLetter }}</div>
@@ -57,6 +57,10 @@ export default class MessageItem extends Vue {
 
   get regAtMe () {
     return /(@\S+)/g;
+  }
+
+  fmtTime (time: number) {
+    return new Date(time || Date.now()).toLocaleString()
   }
 
   at(userName: string) {
@@ -144,8 +148,14 @@ export default class MessageItem extends Vue {
       font-size: 14px;
       font-style: italic;
       color: #333;
+      .time{
+        margin: 0 5px;
+        font-style: normal;
+        color: #999;
+      }
     }
     .msg-content{
+      display: inline-block;
       position: relative;
       padding: 5px 10px;
       background-color: #f4f4f4;
@@ -181,14 +191,13 @@ export default class MessageItem extends Vue {
     justify-content: flex-end;
     padding-right: 10px;
     padding-left: 20px;
+    text-align: right;
     .avatar{
       margin-left: 12px;
       margin-right: 0;
     }
-    .nick-name{
-      text-align: right;
-    }
     .msg-content{
+      text-align: left;
       color: #fff;
       background-color: #4DBA87;
       &::before{

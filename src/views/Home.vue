@@ -17,7 +17,6 @@
     <input-bar
       v-if="socketLogin"
       ref="inputBar"
-      @getUsers="getUsersHandle"
       @sendMsg="sendMessageHandle"
       @click.native.stop=""/>
   </div>
@@ -66,8 +65,10 @@ export default class Home extends Vue {
   get err() {
     if (!this.socketLogin) {
       return {
-        msg: '你已经断开连接，正在重新连接...',
-        clickHandler: () => {}
+        msg: '已断开连接，正在重新连接...长时间没反应可点击刷新',
+        clickHandler: () => {
+          location.reload();
+        }
       }
     }
     return null;
@@ -90,12 +91,8 @@ export default class Home extends Vue {
     this.$refs.inputBar && (this.$refs.inputBar as any).blur();
   }
 
-  getUsersHandle() {
-    socket.emit('get users')
-  }
-
   sendMessageHandle(msg: IMessage) {
-    this.$store.dispatch('addMessage', msg);
+    // this.$store.dispatch('addMessage', msg);
     sendMsg(msg);
     this.scrollBottom(true);
   }

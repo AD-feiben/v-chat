@@ -9,6 +9,7 @@ export interface IMessage {
   type: 'm' | 'o' | 's';
   text: string;
   user?: IUser;
+  time: number;
 }
 
 const url = `//117.48.206.189`;
@@ -53,14 +54,22 @@ const heartbeat = () => {
   }, 20000);
 }
 
-socket.on('login', (data: any): void => {
-  const msgList = data.messageList.map((item: any) => {
+function formatMsg (list: Array<any>) {
+  return list.map((item: any) => {
     return {
       type: item.user.nickName === store.getters.nickName ? 'm' : 'o',
+      time: item.time || Date.now(),
       ...item
     }
   });
-  store.commit('updateMessageList', msgList);
+}
+
+socket.on('clear msg', (data: any) => {
+  store.commit('updateMessageList', formatMsg(data.messageList));
+})
+
+socket.on('login', (data: any): void => {
+  store.commit('updateMessageList', formatMsg(data.messageList));
   store.commit('updateUserNum', data.numUsers);
   store.commit('updateUserList', data.users);
   store.dispatch('addMessage', {
@@ -98,7 +107,7 @@ socket.on('new message', (data: any): void => {
     });
   }
   store.dispatch('addMessage', {
-    type: 'o',
+    type: data.username === store.getters.nickName ? 'm' : 'o',
     text: data.message,
     user: {
       nickName: data.username
@@ -120,5 +129,6 @@ socket.on('disconnect', () => {
   store.commit('updateSocketLogin', false);
   store.dispatch('reLogin');
 });
+
 
 export default socket;
