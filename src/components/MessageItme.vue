@@ -47,6 +47,7 @@ export default class MessageItem extends Vue {
   @Prop({ type: Object, required: true }) message!: IMessage;
 
   timer: number = 0;
+  isAted: boolean = false;
 
   get nickNameFirstLetter () {
     return this.msgNickName ? this.msgNickName[0] : '';
@@ -74,6 +75,7 @@ export default class MessageItem extends Vue {
     this.timer && clearTimeout(this.timer);
     this.timer = setTimeout(() => {
       this.at(userName);
+      this.isAted = true;
     }, 500);
   }
 
@@ -82,10 +84,11 @@ export default class MessageItem extends Vue {
   }
 
   mouseupHandle() {
-    if (this.timer) {
-      clearTimeout(this.timer);
+    if (this.timer && this.isAted) {
       this.$emit('needFocus');
     }
+    clearTimeout(this.timer);
+    this.isAted = false;
   }
 
   formatMsg(text: string) {

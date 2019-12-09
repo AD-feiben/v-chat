@@ -13,7 +13,7 @@ export default class App extends Vue {}
 
 <style lang="scss">
   #app{
-    max-width: 750px;
+    max-width: 450px;
     min-width: 320px;
     margin: 0 auto;
     background-color: #fff;

@@ -18,6 +18,7 @@
       v-if="socketLogin"
       ref="inputBar"
       @sendMsg="sendMessageHandle"
+      @scrollBottom="scrollBottom(true)"
       @click.native.stop=""/>
   </div>
 </template>

@@ -26,7 +26,7 @@
         </ul>
       </div>
     </div>
-    <transition name="tools">
+    <transition name="tools" @after-enter="scrollBottom()">
       <expression @select="expressionSelect" v-if="toolsVisible === 'expression'"/>
     </transition>
   </div>
@@ -75,6 +75,10 @@ export default class InputBar extends Vue {
     return this.$store.getters.userList.filter((name: string) => {
       return name !== this.nickName;
     });
+  }
+
+  scrollBottom () {
+    this.$emit('scrollBottom');
   }
 
   public addText(text: string) {
