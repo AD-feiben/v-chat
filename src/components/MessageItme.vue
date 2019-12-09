@@ -169,6 +169,7 @@ export default class MessageItem extends Vue {
       background-color: #f4f4f4;
       border-radius: 4px;
       line-height: 1.25em;
+      word-break: break-all;
       .at{
         font-size: 16px;
         color: #e00;
