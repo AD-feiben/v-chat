@@ -3,6 +3,7 @@ html{
 }
 html, body, #app{
   height: 100%;
+  height: calc(100% + env(safe-area-inset-bottom));
 }
 
 body{

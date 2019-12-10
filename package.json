@@ -6,8 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "start": "bash start.sh",
-    "server": "node server/index.js"
+    "deploy": "bash deploy.sh"
   },
   "dependencies": {
     "@types/socket.io-client": "^1.4.32",

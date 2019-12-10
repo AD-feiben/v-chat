@@ -13,7 +13,7 @@ export interface IMessage {
   time: number;
 }
 
-const url = '';
+const url = '//chat.fedevelop.cn';
 const options = {
   path: '/socket.io',
   transports: ['websocket'],

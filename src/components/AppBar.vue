@@ -34,7 +34,7 @@ export default class AppBar extends Vue {
     right: 0;
     top: 0;
     height: 50%;
-    background-color: #f4f4f4;
+    background-color: #cccccc;
     z-index: -1;
   }
   .app-bar-inner{
