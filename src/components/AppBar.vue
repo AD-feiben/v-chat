@@ -27,16 +27,6 @@ export default class AppBar extends Vue {
 .app-bar{
   position: relative;
   padding-top: env(safe-area-inset-top);
-  &::after{
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    height: 50%;
-    background-color: #cccccc;
-    z-index: -1;
-  }
   .app-bar-inner{
     position: relative;
     display: flex;
@@ -44,11 +34,13 @@ export default class AppBar extends Vue {
     height: 50px;
     justify-content: center;
     align-items: center;
-    border-bottom: 1px solid rgba($color: #000000, $alpha: .1);
-    background: #fff;
+    color: #fff;
+    background: #000;
+    z-index: 2;
     .icon-exit{
       position: absolute;
       left: 10px;
+      fill: #fff;
     }
   }
 }

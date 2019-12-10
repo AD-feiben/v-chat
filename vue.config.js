@@ -3,7 +3,7 @@ module.exports = {
     //默认值为packag.json中的“name”
     name: 'v-chat',
     //manifest主题颜色
-    themeColor: '#fff',
+    themeColor: '#000',
     //PWA app默认背景色
     msTileColor: '#000000',
     //这默认为“no”，因为11.3之前的iOS没有适当的PWA支持。

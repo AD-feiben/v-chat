@@ -139,6 +139,7 @@ export default class Home extends Vue {
   .message-list{
     flex: 1;
     overflow: hidden;
+    background-color: #171823;
     &.pbsafe{
       padding-bottom: env(safe-area-inset-bottom);
     }

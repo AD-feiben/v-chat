@@ -162,7 +162,7 @@ export default class InputBar extends Vue {
 }
 .input{
   padding-bottom: env(safe-area-inset-bottom);
-  background-color: #f4f4f4;
+  background-color: #000;
   &.focused{
     padding-bottom: 0;
   }
@@ -181,13 +181,15 @@ export default class InputBar extends Vue {
     border: none;
     outline: none;
     border-radius: 2px;
-    background-color: #fff;
+    color: #fff;
+    background-color: #333;
     overflow: auto;
   }
   .emoji-btn{
     display: flex;
     align-items: center;
     margin-left: 10px;
+    fill: #fff;
   }
 
   .user-list{

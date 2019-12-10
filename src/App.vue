@@ -16,7 +16,6 @@ export default class App extends Vue {}
     max-width: 450px;
     min-width: 320px;
     margin: 0 auto;
-    background-color: #fff;
     box-shadow: 0 0 10px 5px rgba($color: #000000, $alpha: .1);
   }
 </style>

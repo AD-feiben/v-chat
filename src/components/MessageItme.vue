@@ -169,7 +169,7 @@ export default class MessageItem extends Vue {
       margin-bottom: 4px;
       font-size: 14px;
       font-style: italic;
-      color: #333;
+      color: #ccc;
       .time{
         margin: 0 5px;
         font-style: normal;
